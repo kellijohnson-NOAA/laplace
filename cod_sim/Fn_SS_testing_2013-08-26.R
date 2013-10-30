@@ -1,14 +1,14 @@
 
 SS_testing = function(RepI, Version){
   # Make directory for replicate
-  RepFile = paste(DateFile,"Rep=",RepI,"/",sep="")
+  RepFile = paste0(DateFile, "Rep=", RepI, "/")
   dir.create(RepFile)
 
   # Only re-generate the data if necessary
-  file.copy(from = paste0(DateFile,FileSet_From), 
-            to   = paste0(RepFile,FileSet_To), overwrite = TRUE)
-  if(ReRun == TRUE | !("BootData.ss" %in% list.files(RepFile) & 
-                       "ss3_0.par"   %in% list.files(RepFile))) {
+  file.copy(from = paste0(DateFile, FileSet_From), 
+            to   = paste0(RepFile,  FileSet_To), overwrite = TRUE)
+  if(ReRun == TRUE | 
+     !all(c("BootData.ss", "ss3_0.par") %in% list.files(RepFile))) {
     # Copy files
     STARTER = SS_readstarter(paste0(DateFile,"Starter.SS"), verbose = FALSE)
     
@@ -33,16 +33,13 @@ SS_testing = function(RepI, Version){
       # Change PAR file
       Par = scan(paste(RepFile,"ss3_init.par",sep=""), comment.char="#")
         # Change K
-        Par[K_set_in_par] = rnorm( length(K_set_in_par), mean=0, sd=SigmaK)
+        Par[K_set_in_par] = rnorm(length(K_set_in_par), mean=0, sd=SigmaK)
         # Change RecDev
-        Par[RecDev_set_in_par] = rnorm( length(RecDev_set_in_par), mean=0, sd=SigmaR)
-        # Change F pattern to two-way trip
-        Par[F_set_in_par] = c(seq(Fmin, Fmax, length=ceiling(length(F_set_in_par)/2)), seq(Fmax, Fmin, length=floor(length(F_set_in_par)/2))) * exp(rnorm(length(F_set_in_par), mean=SigmaF^2/2, sd=SigmaF))
-          Par[F_set_in_par] = ifelse(Par[F_set_in_par]>Flim, Flim, Par[F_set_in_par])
+        Par[RecDev_set_in_par] = rnorm(length(RecDev_set_in_par), mean=0, sd=SigmaR)
       # Write file
-      write(Par, file=paste(RepFile,"ss3.par",sep=""))
+      write(Par, file=paste(RepFile, "ss3.par", sep=""))
       Sys.sleep(1)
-      file.copy(from=paste(RepFile,"ss3.par",sep=""), to=paste(RepFile,"ss3_true.par",sep=""), overwrite=TRUE)
+      file.copy(from=paste(RepFile, "ss3.par", sep=""), to=paste(RepFile,"ss3_true.par",sep=""), overwrite=TRUE)
     
       # Change variance adjustments to default
       if( !is.na(VarianceAdjustment_in_CTL[1]) ){
